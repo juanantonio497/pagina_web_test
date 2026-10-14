@@ -1,0 +1,490 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Halloween With Me 🎃</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: "Trebuchet MS", sans-serif;
+            color: white;
+            background:
+                radial-gradient(ellipse at 50% 0%, #71370f 0%, transparent 40%),
+                radial-gradient(circle at 12% 82%, #39200c 0%, transparent 30%),
+                linear-gradient(145deg, #09090b, #1d1110 55%, #100c15);
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        .stars {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                radial-gradient(#fff4d6 1px, transparent 1px),
+                radial-gradient(#ff9b32 1px, transparent 1px);
+            background-size: 70px 70px, 110px 110px;
+            background-position: 0 0, 30px 40px;
+            opacity: 0.45;
+        }
+
+        .card {
+            position: relative;
+            width: 90%;
+            max-width: 390px;
+            max-height: calc(100vh - 32px);
+            overflow-y: auto;
+            padding: 30px 22px;
+            text-align: center;
+            background: linear-gradient(160deg, #211713f5, #100e13f5);
+            border: 1px solid #bd5a19;
+            border-radius: 18px;
+            box-shadow: 0 0 40px #f2761d30, inset 0 0 25px #ff922f0a;
+        }
+
+        .decoration {
+            font-size: 65px;
+            margin-bottom: 10px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        h1 {
+            color: #ffab43;
+            font-size: 27px;
+            line-height: 1.3;
+        }
+
+        p {
+            color: #e0d6ec;
+            line-height: 1.6;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        button {
+            border: none;
+            border-radius: 30px;
+            padding: 13px 23px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+
+        button:hover {
+            transform: scale(1.07);
+        }
+
+        .yes {
+            background: #ff922f;
+            color: #24102a;
+        }
+
+        .no {
+            background: #40304e;
+            color: white;
+        }
+
+        .page {
+            display: none;
+            animation: appear 0.5s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .activities {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .activities h2 {
+            grid-column: 1 / -1;
+            margin: 8px 0 0;
+            color: #ff9b38;
+            font-size: 18px;
+            text-align: left;
+        }
+
+        .activity {
+            background: #28201e;
+            color: white;
+            border: 1px solid #59402e;
+            padding: 14px 8px;
+            border-radius: 10px;
+        }
+
+        .activity.selected {
+            border-color: #ff9b38;
+            background: #553019;
+            box-shadow: 0 0 12px #ff922f35;
+        }
+
+        .movie-picker {
+            grid-column: 1 / -1;
+            margin: 18px 0;
+            padding: 14px;
+            text-align: left;
+            background: #171311;
+            border: 1px solid #70421f;
+            border-radius: 12px;
+        }
+
+        .movie-picker[hidden] {
+            display: none;
+        }
+
+        .movie-picker label {
+            display: block;
+            margin-bottom: 9px;
+            color: #ffb45b;
+            font-weight: bold;
+        }
+
+        .movie-picker input {
+            width: 100%;
+            min-height: 44px;
+            padding: 10px 12px;
+            color: white;
+            background: #0d0b0a;
+            border: 1px solid #81512b;
+            border-radius: 8px;
+            font: inherit;
+        }
+
+        .movie-picker input:focus {
+            outline: 2px solid #ff9b38;
+            outline-offset: 2px;
+        }
+
+        .movie-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-top: 11px;
+        }
+
+        .movie-suggestion {
+            padding: 8px 10px;
+            color: #ffe3c1;
+            background: #34231a;
+            border: 1px solid #70421f;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .movie-suggestion.selected {
+            color: #1b1008;
+            background: #ffad4d;
+            border-color: #ffd08b;
+        }
+
+        .next {
+            width: 100%;
+            background: #ff922f;
+            color: #24102a;
+        }
+
+        .result {
+            padding: 15px;
+            border: 1px solid #70421f;
+            border-radius: 12px;
+            background: #211a17;
+        }
+
+        .ghost {
+            position: fixed;
+            bottom: -50px;
+            font-size: 28px;
+            animation: rise 8s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(-3deg); }
+            50% { transform: translateY(-10px) rotate(3deg); }
+        }
+
+        @keyframes appear {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes rise {
+            from { transform: translateY(0); opacity: 0; }
+            15% { opacity: 0.8; }
+            to { transform: translateY(-110vh); opacity: 0; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="stars"></div>
+
+    <main class="card">
+
+        <!-- FIRST SCREEN -->
+        <section class="page active" id="page1">
+            <div class="decoration">🎃👻🦇</div>
+
+            <h1>Will you celebrate Halloween with me?</h1>
+
+            <p>
+                October 31st is coming... 🕸️<br>
+                And I have one little question for you!
+            </p >
+
+            <div class="buttons">
+                <button class="yes" onclick="showPage(2)">
+                    YES! 🎃
+                </button>
+
+                <button class="no" id="noButton" onclick="sayNo()">
+                    NO 👻
+                </button>
+            </div>
+
+            <p id="noMessage"></p >
+        </section>
+
+        <!-- SECOND SCREEN -->
+        <section class="page" id="page2">
+            <div class="decoration">🧡🌙</div>
+
+            <h1>Yaaay! 🎉</h1>
+
+            <p>Choose an activity, something to eat, and a drink!</p >
+
+            <div class="activities">
+                <h2>Activities</h2>
+                <button class="activity"
+                    onclick="choose(this, '🎃 Pumpkin night', 'activity')">
+                    🎃 Pumpkin night
+                </button>
+
+                <button class="activity"
+                    onclick="choose(this, '🍬 Trick or treat', 'activity')">
+                    🍬 Trick or treat
+                </button>
+
+                <button class="activity"
+                    onclick="choose(this, '🎬 Horror movies', 'activity')">
+                    🎬 Horror movies
+                </button>
+
+                <button class="activity"
+                    onclick="choose(this, '🎲 Board games', 'activity')">
+                    🎲 Board games
+                </button>
+
+                <button class="activity"
+                    onclick="choose(this, '🍕 Snacks and games', 'activity')">
+                    🍕 Snacks & games
+                </button>
+
+                <section class="movie-picker" id="moviePicker" hidden>
+                    <label for="movieTitle">🎬 Which spooky movie should we watch?</label>
+                    <input id="movieTitle" type="text" maxlength="80"
+                        placeholder="Write a movie title..." oninput="clearMovieSuggestion()">
+                    <div class="movie-suggestions" aria-label="Movie suggestions">
+                        <button class="movie-suggestion" type="button" onclick="suggestMovie(this, 'Coraline')">🪡 Coraline</button>
+                        <button class="movie-suggestion" type="button" onclick="suggestMovie(this, 'Coco')">💀 Coco</button>
+                        <button class="movie-suggestion" type="button" onclick="suggestMovie(this, 'Hocus Pocus')">🧙 Hocus Pocus</button>
+                        <button class="movie-suggestion" type="button" onclick="suggestMovie(this, 'The Nightmare Before Christmas')">🎃 The Nightmare Before Christmas</button>
+                    </div>
+                </section>
+
+                <h2>Food</h2>
+                <button class="activity"
+                    onclick="choose(this, '🍕 Pizza', 'food')">
+                    🍕 Pizza
+                </button>
+
+                <button class="activity"
+                    onclick="choose(this, '🍿 Popcorn', 'food')">
+                    🍿 Popcorn
+                </button>
+
+                <button class="activity"
+                    onclick="choose(this, '🧁 Halloween cupcakes', 'food')">
+                    🧁 Halloween cupcakes
+                </button>
+
+                <button class="activity"
+                    onclick="choose(this, '🍎 Caramel apples', 'food')">
+                    🍎 Caramel apples
+                </button>
+
+                <h2>Drinks</h2>
+                <button class="activity"
+                    onclick="choose(this, '🍷 Halloween punch', 'drink')">
+                    🍷 Halloween punch
+                </button>
+
+                <button class="activity"
+                    onclick="choose(this, '☕ Hot chocolate', 'drink')">
+                    ☕ Hot chocolate
+                </button>
+
+                <button class="activity"
+                    onclick="choose(this, '🍎 Apple cider', 'drink')">
+                    🍎 Apple cider
+                </button>
+
+                <button class="activity"
+                    onclick="choose(this, '🥤 Pumpkin spice milkshake', 'drink')">
+                    🥤 Pumpkin spice milkshake
+                </button>
+            </div>
+
+            <button class="next" onclick="finish()">
+                Let's make it happen! 🦇
+            </button>
+        </section>
+
+        <!-- FINAL SCREEN -->
+        <section class="page" id="page3">
+            <div class="decoration">🧡👻🎃</div>
+
+            <h1>It's a Halloween date!</h1>
+
+            <div class="result" id="result"></div>
+
+            <p>It's going to be spooktacular! ✨</p >
+        </section>
+
+    </main>
+
+    <script>
+        function showPage(number) {
+            document.querySelectorAll(".page").forEach(page => {
+                page.classList.remove("active");
+            });
+
+            document.getElementById("page" + number)
+                .classList.add("active");
+        }
+
+        let noClicks = 0;
+
+        function sayNo() {
+            noClicks++;
+
+            const messages = [
+                "Are you sure? 🥺🎃",
+                "Halloween would be more fun together! 👻",
+                "One more chance? 🧡"
+            ];
+
+            document.getElementById("noMessage").textContent =
+                messages[(noClicks - 1) % messages.length];
+        }
+
+        const selections = {
+            activity: "",
+            food: "",
+            drink: ""
+        };
+
+        function choose(button, choice, category) {
+            document.querySelectorAll(`.activity[data-category="${category}"]`).forEach(item => {
+                item.classList.remove("selected");
+            });
+
+            button.classList.add("selected");
+            button.dataset.category = category;
+            selections[category] = choice;
+
+            if (category === "activity") {
+                const moviePicker = document.getElementById("moviePicker");
+                moviePicker.hidden = choice !== "🎬 Horror movies";
+                if (moviePicker.hidden) {
+                    document.getElementById("movieTitle").value = "";
+                    document.querySelectorAll(".movie-suggestion").forEach(item => {
+                        item.classList.remove("selected");
+                    });
+                }
+            }
+        }
+
+        function suggestMovie(button, title) {
+            document.getElementById("movieTitle").value = title;
+            document.querySelectorAll(".movie-suggestion").forEach(item => {
+                item.classList.toggle("selected", item === button);
+            });
+        }
+
+        function clearMovieSuggestion() {
+            document.querySelectorAll(".movie-suggestion").forEach(item => {
+                item.classList.remove("selected");
+            });
+        }
+
+        function finish() {
+            if (!selections.activity || !selections.food || !selections.drink) {
+                alert("Choose an activity, food, and a drink first! 🎃");
+                return;
+            }
+
+            const movieTitle = document.getElementById("movieTitle").value.trim();
+            if (selections.activity === "🎬 Horror movies" && !movieTitle) {
+                alert("Write or choose a movie for our spooky movie night! 🎬");
+                document.getElementById("movieTitle").focus();
+                return;
+            }
+
+            const plan = [...Object.values(selections)];
+            if (selections.activity === "🎬 Horror movies") {
+                plan.push("🎥 " + movieTitle);
+            }
+
+            document.getElementById("result").textContent =
+                "Our plan: " + plan.join(" · ") +
+                ". I can't wait! 🧡";
+
+            showPage(3);
+        }
+
+        // Floating Halloween emojis
+        function createGhost() {
+            const ghost = document.createElement("div");
+            ghost.className = "ghost";
+
+            const emojis = ["👻", "🦇", "✨", "🎃"];
+            ghost.textContent =
+                emojis[Math.floor(Math.random() * emojis.length)];
+
+            ghost.style.left = Math.random() * 100 + "vw";
+            ghost.style.animationDuration =
+                (6 + Math.random() * 5) + "s";
+
+            document.body.appendChild(ghost);
+
+            setTimeout(() => ghost.remove(), 11000);
+        }
+
+        setInterval(createGhost, 1200);
+    </script>
+
+</body>
+</html>
